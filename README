@@ -18,13 +18,12 @@ git submodule update --init --recursive
 
 cd firmware
 
-make BOARD=stm32f429
+bash bin/compile.sh
 
 
 
-root@tunuino_build:/tunuino/tunuino/firmware# make BOARD=stm32f429
+root@tunuino_build:/tunuino/tunuino/firmware# bash bin/compile.sh
 
-[META] Build configuration (reference values; not output from the current Makefile):
 [META] PROJECT_BOARD=tunuino
 [META] PROJECT_CPU=ARCH_STM32F4
 [META] BOARD_DIR=./config/boards/tunuino
