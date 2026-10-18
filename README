@@ -23,11 +23,15 @@ bin/compile.sh
 
 
 root@tunuino_build:/tunuino/tunuino/firmware# bash bin/compile.sh
+ 1) tunuino default
+Select a build by entering its number: 1
 
+[META] Reading meta env from config/boards/tunuino/meta-info.env
 [META] PROJECT_BOARD=tunuino
 [META] PROJECT_CPU=ARCH_STM32F4
+[META] POST_BUILD_SCRIPT=
 [META] BOARD_DIR=./config/boards/tunuino
-[META] MCU=STM32F429
+[META] USE_OPENBLT=no
 
 Building Tunuino firmware for STM32F429
 
