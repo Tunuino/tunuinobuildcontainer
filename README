@@ -1,76 +1,98 @@
-# Tunuino Build Container
+# This makes it simpler to compile tunuino firmware by shoving the build environment into a container with ubuntu and all of the latest software bits required
 
-Docker-based development environment for the [Tunuino ECU firmware and Console](https://github.com/Tunuino/tunuino), following the separate build-container approach used by rusEFI.
 
-This repository contains the container definition and helper scripts. The firmware, Java Console, tests, and board configuration live in the main Tunuino repository.
+# build and run the container, it should have all the bits needed for compiling
 
-## Requirements
+./build_container.sh 
+./run_container.sh
 
-- Docker Engine or Docker Desktop with Linux container support
-- An x86-64 host with sufficient disk space and internet access to download dependencies
-- Git (for checking out the firmware repository)
+# check out the code into repo directory
 
-## Build the container
+cd /tunuino
 
-From this repository's root directory:
+git clone https://github.com/tunuino/tunuino.git
 
-```bash
-bash build_container.sh
-```
+cd tunuino
 
-The script creates a local `repo/` directory and builds the Docker image `tunuino_build:0.3`. The image installs Linux build utilities, Java, CMake, and an ARM GNU toolchain.
+git submodule update --init
 
-## Start the container
+cd firmware
 
-```bash
-bash run_container.sh
-```
+bin/compile.sh
 
-The host's `repo/` directory is mounted inside the container at `/tunuino`. Files stored there persist after the container exits. The container itself is removed on exit.
 
-**Security note:** the current `run_container.sh` disables Docker's default seccomp and AppArmor confinement. Use it only in a trusted development environment; those relaxations should be removed once their necessity has been evaluated.
 
-## Build Tunuino firmware
+root@:/tunuino/tunuino/firmware# bin/compile.sh
+ 1)
+Select a build by entering its number:
 
-Check out the main repository into the mounted `repo/` directory on the host, then run the following commands inside the container:
 
-```bash
-cd /tunuino/tunuino
-git submodule update --init --recursive
-make -C firmware BOARD=stm32f429
-```
+.
+.
+.
+.
 
-The STM32F429 build currently produces its firmware image under:
 
-```text
-firmware/platform/stm32f429/build/tunuino.elf
-firmware/platform/stm32f429/build/tunuino.bin
-```
 
-These are build outputs, **not** proof that the firmware or ECU hardware has been validated.
+[META] Reading meta env from ./config/boards/meta-info.env
+[META] PROJECT_BOARD=
+[META] PROJECT_CPU=ARCH_STM32F4
+[META] POST_BUILD_SCRIPT=
+[META] BOARD_DIR=./config/boards/
+[META] USE_OPENBLT=
+found ./config/boards/connectors/generated_ts_name_by_pin.cpp
+PROJECT_BOARD: 
+BOARD_DIR:     
 
-## Run native tests
 
-From `/tunuino/tunuino`:
+.
+.
+.
+.
 
-```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build --parallel 2
-ctest --test-dir build --output-on-failure
-```
 
-## Java Console
 
-The main repository uses Gradle for Java Console modules. Consult its `settings.gradle` and `.github/workflows/build-console.yml` for the currently supported tasks and Java version. Do not assume the build container's Java configuration is identical to CI.
+Linking build/tunuino.elf
+lto-wrapper: warning: Options to '-Xassembler' do not match: -alms=build/lst/gcc_version_check.lst, -alms=build/lst/crt1.lst, dropping all '-Xassembler' and '-Wa' options.
+Creating build/tunuino.hex
+Creating build/tunuino.bin
+Creating build/tunuino.dmp
+Creating build/tunuino.list
+Creating build/tunuino.srec
 
-## Current limitations
+   text    data     bss     dec     hex filename
+ 532488    1584  188216  722288   b0570 build/tunuino.elf
+bss Total size: 114327
+ram4 Total size: 0
+text Total size: 403122
+data Total size: 1471
+rodata Total size: 107648
+ 20 .ram4         0000e560  10000000  08082650  000b0000  2**3
 
-- The container image has not been verified by a successful end-to-end Docker build in this update.
-- The Dockerfile currently selects `ubuntu:resolute`, while `config.sh` installs some version-specific packages. Package availability may require adjustment.
-- `provide_gcc.sh` downloads the ARM 14.2 toolchain, but the Dockerfile also references an older 12.2 toolchain path. This mismatch needs correction before relying on the image.
-- USB firmware flashing and an operational OpenBLT bootloader are **not** provided by this container.
-- The repository does not itself contain the Tunuino firmware source.
+Done
+root@:/tunuino/tunuino/firmware/config/boards/
 
-## License
 
-Consult the main Tunuino repository and each included tool or dependency for applicable license terms. Third-party licenses and copyright notices must be retained where required.
+# ---------------------
+# firware is here
+
+ls -la /tunuino/tunuino/firmware/build
+
+
+root@:/tunuino/tunuino/firmware/build# ls -la /tunuino/tunuino/firmware/build
+total 33708
+drwxr-xr-x  4 root root     4096 Feb 24 18:55 .
+drwxr-xr-x 22 root root     4096 Feb 24 18:55 ..
+drwxr-xr-x  2 root root    20480 Feb 24 18:55 lst
+drwxr-xr-x  2 root root    20480 Feb 24 18:55 obj
+-rwxr-xr-x  1 root root   534096 Feb 24 18:55 tunuino.bin
+-rw-r--r--  1 root root   738564 Feb 24 18:55 tunuino.dmp
+-rwxr-xr-x  1 root root 18285028 Feb 24 18:55 tunuino.elf
+-rw-r--r--  1 root root  1502297 Feb 24 18:55 tunuino.hex
+-rw-r--r--  1 root root  9227459 Feb 24 18:55 tunuino.list
+-rw-r--r--  1 root root  2675571 Feb 24 18:55 tunuino.map
+-rwxr-xr-x  1 root root  1602318 Feb 24 18:55 tunuino.srec
+
+
+## exit out of the container, it will get removed on exit, but the repo directory is external and ./run_container.sh will get back to spot where compile can happen
+
