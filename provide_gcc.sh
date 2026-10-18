@@ -1,42 +1,23 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# Download and extract GCC arm-none-eabi toolchain
-
-set -e
-
-# URL to download original toolchain from
-# URL="https://github.com/tunuino/build_support/raw/master/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi.tar.xz"
-URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz";
-# This is the md5sum of the /bin/arm-none-eabi-ld executable within the archive, used for verifying we have the proper version.
-# If you change the above URL, you will need to update this checksum as well.
-MANIFEST_SUM="d7145e6152652d550651e1ceeb9eea86"
-# colloquial directory name, to afford re-use of script
-COLLOQUIAL="gcc-arm-none-eabi"
-# temporary working directory
+# Arm GNU Toolchain 14.2.Rel1, shared with the firmware CI toolchain version.
+URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz"
 TMP_DIR="/tmp/tunuino-provide_gcc14"
-
 archive="${URL##*/}"
-
-SWD="$PWD"
-
-## If the checksum file doesn't exist, or if its checksum doesn't match, then download and install the archive.
-#if [ ! -f "${TMP_DIR}"/*/bin/arm-none-eabi-ld ] ||\
-#   [ "$MANIFEST_SUM" != "$(md5sum ${TMP_DIR}/*/bin/arm-none-eabi-ld | cut -d ' ' -f 1)" ]; then
-	rm -rf "${TMP_DIR}"
-	# Download and extract archive
-	echo Downloading and extracting ${archive}
-	mkdir -p "${TMP_DIR}"
-	cd "${TMP_DIR}"
-	curl -L -o "${archive}" "${URL}"
-	tar -xaf "${archive}"
-	echo "Cleaning ${archive}"
-	rm "${archive}"
-#else
-#	echo "Toolkit already present"
-#fi
-
-# Create colloquially named link
-cd "$SWD"
-echo "Linking ${TMP_DIR} ${COLLOQUIAL}"
-ln -sf "${TMP_DIR}"/*/bin/* /usr/bin/
-
+mkdir -p "$TMP_DIR"
+if ! compgen -G "$TMP_DIR/arm-gnu-toolchain-*/bin/arm-none-eabi-gcc" >/dev/null; then
+  curl --fail --location --retry 3 --output "$TMP_DIR/$archive" "$URL"
+  tar -xJf "$TMP_DIR/$archive" -C "$TMP_DIR"
+  rm -f "$TMP_DIR/$archive"
+fi
+shopt -s nullglob
+bins=("$TMP_DIR"/arm-gnu-toolchain-*/bin/arm-none-eabi-*)
+if (( ${#bins[@]} == 0 )); then
+  echo "Arm GNU Toolchain extraction failed" >&2
+  exit 1
+fi
+for bin in "${bins[@]}"; do
+  ln -sf "$bin" "/usr/local/bin/$(basename "$bin")"
+done
+/usr/local/bin/arm-none-eabi-gcc --version
