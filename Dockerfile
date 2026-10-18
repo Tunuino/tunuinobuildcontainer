@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:resolute
+FROM ubuntu:24.04
 COPY config.sh /config.sh
 COPY provide_gcc.sh /provide_gcc.sh
 
@@ -11,5 +11,5 @@ ENV ARDUINO_DIRECTORIES_DATA=/opt/arduino15 \
     ARDUINO_DIRECTORIES_USER=/opt/arduino
 
 RUN /config.sh
-RUN  ln -s /tmp/tunuino-provide_gcc12/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/bin/* /usr/bin/
+RUN arm-none-eabi-gcc --version && arm-none-eabi-objcopy --version
 CMD /bin/bash
