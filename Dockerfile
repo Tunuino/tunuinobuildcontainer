@@ -3,8 +3,6 @@
 FROM ubuntu:resolute
 COPY config.sh /config.sh
 COPY provide_gcc.sh /provide_gcc.sh
-COPY upload_ini.sh /upload_ini.sh
-RUN chmod 777 /upload_ini.sh
 
 # Shared arduino-cli dirs (IOX firmware/bundle builds): set before config.sh so
 # the image build and every later shell - root or not, login or not - use them.
