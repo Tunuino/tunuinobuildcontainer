@@ -1,1 +1,6 @@
-docker run    --security-opt seccomp=unconfined  --security-opt apparmor=unconfined  --rm -it -v `pwd`/repo:/tunuino -p 30001:29001 -p 30002:29002 --name tunuino_build tunuino_build:0.3 $*
+#!/usr/bin/env bash
+set -euo pipefail
+# Same bind-mounted source layout and disposable container lifecycle as rusEFI.
+cd "$(dirname "$0")"
+mkdir -p repo
+docker run --rm -it -v "$(pwd)/repo:/tunuino" --name tunuino_build tunuino_build:0.3 "$@"
