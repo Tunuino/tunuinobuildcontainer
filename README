@@ -18,7 +18,7 @@ git submodule update --init --recursive
 
 cd firmware
 
-bash bin/compile.sh
+bin/compile.sh
 
 
 
