@@ -22,7 +22,7 @@ make BOARD=stm32f429
 
 
 
-root@:/tunuino/tunuino/firmware# make BOARD=stm32f429
+root@tunuino_build:/tunuino/tunuino/firmware# make BOARD=stm32f429
 
 Building Tunuino firmware for STM32F429
 
@@ -37,7 +37,7 @@ Output: platform/stm32f429/build/tunuino.elf
 Output: platform/stm32f429/build/tunuino.bin
 
 Done
-root@:/tunuino/tunuino/firmware/
+root@tunuino_build:/tunuino/tunuino/firmware#
 
 
 # ---------------------
@@ -46,20 +46,11 @@ root@:/tunuino/tunuino/firmware/
 ls -la /tunuino/tunuino/firmware/platform/stm32f429/build
 
 
-root@:/tunuino/tunuino/firmware/build# ls -la /tunuino/tunuino/firmware/build
-total 33708
-drwxr-xr-x  4 root root     4096 Feb 24 18:55 .
-drwxr-xr-x 22 root root     4096 Feb 24 18:55 ..
-drwxr-xr-x  2 root root    20480 Feb 24 18:55 lst
-drwxr-xr-x  2 root root    20480 Feb 24 18:55 obj
--rwxr-xr-x  1 root root   534096 Feb 24 18:55 tunuino.bin
--rw-r--r--  1 root root   738564 Feb 24 18:55 tunuino.dmp
--rwxr-xr-x  1 root root 18285028 Feb 24 18:55 tunuino.elf
--rw-r--r--  1 root root  1502297 Feb 24 18:55 tunuino.hex
--rw-r--r--  1 root root  9227459 Feb 24 18:55 tunuino.list
--rw-r--r--  1 root root  2675571 Feb 24 18:55 tunuino.map
--rwxr-xr-x  1 root root  1602318 Feb 24 18:55 tunuino.srec
+root@tunuino_build:/tunuino/tunuino/firmware/platform/stm32f429/build# ls -la /tunuino/tunuino/firmware/platform/stm32f429/build
 
+# Example file names; actual sizes and timestamps depend on the build:
+tunuino.bin
+tunuino.elf
 
 ## exit out of the container, it will get removed on exit, but the repo directory is external and ./run_container.sh will get back to spot where compile can happen
 
