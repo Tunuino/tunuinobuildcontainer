@@ -10,40 +10,21 @@
 
 cd /tunuino
 
-git clone https://github.com/tunuino/tunuino.git
+git clone https://github.com/Tunuino/tunuino.git
 
 cd tunuino
 
-git submodule update --init
+git submodule update --init --recursive
 
 cd firmware
 
-bin/compile.sh
+make BOARD=stm32f429
 
 
 
-root@:/tunuino/tunuino/firmware# bin/compile.sh
- 1)
-Select a build by entering its number:
+root@:/tunuino/tunuino/firmware# make BOARD=stm32f429
 
-
-.
-.
-.
-.
-
-
-
-[META] Reading meta env from ./config/boards/meta-info.env
-[META] PROJECT_BOARD=
-[META] PROJECT_CPU=ARCH_STM32F4
-[META] POST_BUILD_SCRIPT=
-[META] BOARD_DIR=./config/boards/
-[META] USE_OPENBLT=
-found ./config/boards/connectors/generated_ts_name_by_pin.cpp
-PROJECT_BOARD: 
-BOARD_DIR:     
-
+Building Tunuino firmware for STM32F429
 
 .
 .
@@ -52,31 +33,17 @@ BOARD_DIR:
 
 
 
-Linking build/tunuino.elf
-lto-wrapper: warning: Options to '-Xassembler' do not match: -alms=build/lst/gcc_version_check.lst, -alms=build/lst/crt1.lst, dropping all '-Xassembler' and '-Wa' options.
-Creating build/tunuino.hex
-Creating build/tunuino.bin
-Creating build/tunuino.dmp
-Creating build/tunuino.list
-Creating build/tunuino.srec
-
-   text    data     bss     dec     hex filename
- 532488    1584  188216  722288   b0570 build/tunuino.elf
-bss Total size: 114327
-ram4 Total size: 0
-text Total size: 403122
-data Total size: 1471
-rodata Total size: 107648
- 20 .ram4         0000e560  10000000  08082650  000b0000  2**3
+Output: platform/stm32f429/build/tunuino.elf
+Output: platform/stm32f429/build/tunuino.bin
 
 Done
-root@:/tunuino/tunuino/firmware/config/boards/
+root@:/tunuino/tunuino/firmware/
 
 
 # ---------------------
 # firware is here
 
-ls -la /tunuino/tunuino/firmware/build
+ls -la /tunuino/tunuino/firmware/platform/stm32f429/build
 
 
 root@:/tunuino/tunuino/firmware/build# ls -la /tunuino/tunuino/firmware/build
