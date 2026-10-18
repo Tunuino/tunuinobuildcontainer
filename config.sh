@@ -1,4 +1,6 @@
-
+#!/usr/bin/env bash
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
 apt-get -y update
 
 apt-get -y install sudo git curl xz-utils openjdk-21-jdk-headless
@@ -12,7 +14,7 @@ apt-get -y install php npm nodejs valgrind bc gh
 apt-get -y install mingw-w64-common mingw-w64-tools mingw-w64 mingw-w64-x86-64-dev mingw-w64-i686-dev g++-mingw-w64
 apt-get -y install g++-mingw-w64-x86-64  gcc-mingw-w64-x86-64  gcc-mingw-w64-base cmake
 apt-get -y install g++-arm-linux-gnueabihf qemu-user
-pip  install --break-system-packages pyyaml jinja2 
+python3 -m pip install --break-system-packages pyyaml jinja2 
 npm install -g openwolf
 
 # IOX (MEGA_EPIC_IOX) firmware/bundle builds: arduino-cli + the AVR core + the
