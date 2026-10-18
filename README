@@ -24,6 +24,12 @@ make BOARD=stm32f429
 
 root@tunuino_build:/tunuino/tunuino/firmware# make BOARD=stm32f429
 
+[META] Build configuration (reference values; not output from the current Makefile):
+[META] PROJECT_BOARD=tunuino
+[META] PROJECT_CPU=ARCH_STM32F4
+[META] BOARD_DIR=./config/boards/tunuino
+[META] MCU=STM32F429
+
 Building Tunuino firmware for STM32F429
 
 .
