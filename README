@@ -1,65 +1,78 @@
-# This makes it simpler to compile tunuino firmware by shoving the build environment into a container with ubuntu and all of the latest software bits required
+# Tunuino — ambiente de compilação em Docker
 
+Este repositório fornece um ambiente Ubuntu 24.04 com ferramentas para compilar o firmware do projeto [Tunuino](https://github.com/Tunuino/tunuino). O código-fonte e os artefactos ficam fora do contentor, na pasta local `repo/`.
 
-# build and run the container, it should have all the bits needed for compiling
+> **Estado:** o procedimento abaixo identifica o alvo correto, mas **a compilação Proteus F4 e os ficheiros produzidos ainda não foram validados neste repositório**. Não considerar qualquer imagem pronta para gravar numa ECU sem verificar o ELF, os endereços de Flash e o bootloader.
 
-./build_container.sh 
-./run_container.sh
+## Preparar o ambiente
 
-# check out the code into repo directory
+Na pasta deste repositório, com Docker instalado:
 
+```bash
+bash build_container.sh
+bash run_container.sh
+```
+
+O segundo comando abre um contentor descartável e monta a pasta `repo/` do anfitrião em `/tunuino`. Os ficheiros nessa pasta persistem depois de sair do contentor.
+
+## Obter o código
+
+Dentro do contentor:
+
+```bash
 cd /tunuino
-
 git clone https://github.com/Tunuino/tunuino.git
-
 cd tunuino
-
 git submodule update --init --recursive
+```
 
-cd firmware
+Se o repositório já estiver clonado, entrar na pasta existente em vez de voltar a executar `git clone`. O projeto principal usa `upstream/rusefi` como submódulo e mantém `firmware/libfirmware` como dependência separada.
 
-bin/compile.sh
+## Preparar o alvo Proteus F4
 
+A partir da raiz de `/tunuino/tunuino`:
 
+```bash
+bash scripts/prepare-proteus-f4.sh
+```
 
-root@tunuino_build:/tunuino/tunuino/firmware# bash bin/compile.sh
- 1) tunuino default
-Select a build by entering its number: 1
+Este script liga a biblioteca Tunuino ao caminho esperado pelo firmware rusEFI. Deve-se confirmar que os submódulos exigidos pela revisão fixada estão inicializados; a existência de repositórios na conta GitHub, por si só, não substitui essa verificação.
 
-[META] Reading meta env from config/boards/tunuino/meta-info.env
-[META] PROJECT_BOARD=tunuino
-[META] PROJECT_CPU=ARCH_STM32F4
-[META] POST_BUILD_SCRIPT=
-[META] BOARD_DIR=./config/boards/tunuino
-[META] USE_OPENBLT=no
+## Compilar
 
-Building Tunuino firmware for STM32F429
+Dentro do contentor, a partir da raiz do projeto:
 
-.
-.
-.
-.
+```bash
+cd /tunuino/tunuino/upstream/rusefi/firmware
+bash bin/compile.sh config/boards/proteus/meta-info-proteus_f4.env
+```
 
+Este é o alvo **Proteus F4** da rusEFI (`ARCH_STM32F4`, `USE_OPENBLT=yes`). O hardware de referência para validação é a Proteus com **STM32F427ZGT6 e 1 MiB de Flash**. A configuração upstream pode usar definições da família STM32F429; a compatibilidade efetiva com o F427 tem de ser verificada antes de gravar.
 
+Para criar um pacote de distribuição, a infraestrutura rusEFI também disponibiliza a opção `-b`:
 
-Output: platform/stm32f429/build/tunuino.elf
-Output: platform/stm32f429/build/tunuino.bin
+```bash
+bash bin/compile.sh -b config/boards/proteus/meta-info-proteus_f4.env
+```
 
-Done
-root@tunuino_build:/tunuino/tunuino/firmware#
+Os caminhos e nomes exatos dos artefactos devem ser obtidos dos resultados reais do build. Para atualização via OpenBLT, interessa especialmente a imagem endereçada `*_update.srec`; um ficheiro `.bin` genérico não deve ser tratado automaticamente como imagem adequada para gravação.
 
+## Verificar antes de gravar
 
-# ---------------------
-# firware is here
+Após uma compilação bem-sucedida, localizar o ELF gerado e executar, a partir da raiz do projeto Tunuino:
 
-ls -la /tunuino/tunuino/firmware/platform/stm32f429/build
+```bash
+bash scripts/check-proteus-f4-elf.sh /caminho/real/para/rusefi.elf
+```
 
+O caminho acima é um marcador e deve ser substituído pelo caminho do ELF efetivamente produzido. A verificação de intervalos de Flash, por si só, não comprova compatibilidade de bootloader, pinagem ou recuperação; o script também necessita de validação com um ELF real.
 
-root@tunuino_build:/tunuino/tunuino/firmware/platform/stm32f429/build# ls -la /tunuino/tunuino/firmware/platform/stm32f429/build
+**Não usar as instruções antigas** que referiam `config/boards/tunuino/meta-info.env`, `USE_OPENBLT=no` ou `platform/stm32f429/build/tunuino.bin`: descreviam uma tentativa anterior e não o alvo Proteus F4 atual.
 
-# Example file names; actual sizes and timestamps depend on the build:
-tunuino.bin
-tunuino.elf
+## Sair e voltar ao contentor
 
-## exit out of the container, it will get removed on exit, but the repo directory is external and ./run_container.sh will get back to spot where compile can happen
+Escrever `exit` para terminar a sessão. O contentor é removido automaticamente (`--rm`), mas o código em `repo/` permanece. Para regressar:
 
+```bash
+bash run_container.sh
+```
